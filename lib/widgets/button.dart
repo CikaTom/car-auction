@@ -28,7 +28,7 @@ class Button extends StatelessWidget {
           borderRadius: borderRadius2,
         ),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Text(
             text,
             style: TextStyle(

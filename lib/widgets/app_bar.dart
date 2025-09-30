@@ -9,20 +9,23 @@ class MyAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+    return const Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: 8,
+      ),
       child: Row(
         children: [
-          const Text('Cars Auction'),
+          Text('Cars Auction'),
           Spacer(),
-          SizedBox(width: 8.0),
-          const SignUpButton(),
-          SizedBox(width: 8.0),
-          const SearchIcon(),
-          SizedBox(width: 8.0),
-          const CommunitiesIcon(),
-          SizedBox(width: 8.0),
-          const MenuIcon(),
+          SizedBox(width: 8),
+          SignUpButton(),
+          SizedBox(width: 8),
+          SearchIcon(),
+          SizedBox(width: 8),
+          CommunitiesIcon(),
+          SizedBox(width: 8),
+          MenuIcon(),
         ],
       ),
     );

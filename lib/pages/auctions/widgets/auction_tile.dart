@@ -1,27 +1,53 @@
 import 'package:car_auction/colors.dart';
+import 'package:car_auction/pages/auctions/cubit.dart';
+import 'package:car_auction/pages/auctions/state.dart';
+import 'package:car_auction/widgets/badge.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AuctionsPageAuctionTile extends StatelessWidget {
-  const AuctionsPageAuctionTile({super.key});
+  const AuctionsPageAuctionTile({
+    super.key,
+    required this.auction,
+    required this.index,
+  });
+
+  final AuctionsPageAuction auction;
+  final int index;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 8.0, right: 8.0, bottom: 16.0),
+      padding: const EdgeInsets.only(left: 8, right: 8, bottom: 20),
       child: SizedBox(
         height: 300,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(child: const _Image()),
+            Expanded(
+              child: _Image(
+                imageUrl: auction.imageUrl,
+                remainingTime: auction.remainingTime,
+                remainingTimeText: auction.remainingTimeText,
+                bidAmount: auction.bidAmount,
+              ),
+            ),
             const SizedBox(height: 4),
-            _Title(),
+            _Title(
+              title: auction.title,
+              index: index,
+              favored: auction.favored,
+            ),
             const SizedBox(height: 4),
-            _Subtitle(),
+            _Subtitle(
+              reserved: auction.reserved,
+              inspected: auction.inspected,
+              subtitle: auction.subtitle,
+            ),
             const SizedBox(height: 2),
             Text(
-              'Methuen, MA 01844',
-              style: TextStyle(fontSize: 11, color: CAColors.grey),
+              auction.location,
+              style: const TextStyle(fontSize: 11, color: CAColors.grey),
             ),
           ],
         ),
@@ -31,20 +57,37 @@ class AuctionsPageAuctionTile extends StatelessWidget {
 }
 
 class _Subtitle extends StatelessWidget {
-  const _Subtitle();
+  const _Subtitle({
+    required this.subtitle,
+    required this.reserved,
+    required this.inspected,
+  });
+
+  final String subtitle;
+  final bool reserved;
+  final bool inspected;
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        _Badge(
-          color: CAColors.blue,
-          text: 'No reserve',
-        ),
-        SizedBox(width: 8),
-        Text(
-          '6-Speed Manual, Touring Pack, Mostly Unmodified',
-          style: TextStyle(fontSize: 11, fontWeight: FontWeight.w500),
+        if (!reserved)
+          const Padding(
+            padding: EdgeInsets.only(right: 8),
+            child: NotReservedBadge(),
+          ),
+
+        if (inspected)
+          const Padding(
+            padding: EdgeInsets.only(right: 8),
+            child: InspectedBadge(),
+          ),
+
+        Expanded(
+          child: Text(
+            subtitle,
+            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500),
+          ),
         ),
       ],
     );
@@ -52,26 +95,42 @@ class _Subtitle extends StatelessWidget {
 }
 
 class _Image extends StatelessWidget {
-  const _Image();
+  const _Image({
+    required this.imageUrl,
+    required this.remainingTime,
+    required this.remainingTimeText,
+    required this.bidAmount,
+  });
+
+  final String imageUrl;
+
+  final int remainingTime;
+  final String remainingTimeText;
+  final String bidAmount;
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-
-          child: Image.network(
-            'https://www.topgear.com/sites/default/files/news-listicle/image/2021/12/18.%20Koenigsegg%20Jesko.jpg?w=827&h=465',
-            fit: BoxFit.cover,
+        Positioned.fill(
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Image.network(
+              imageUrl,
+              fit: BoxFit.cover,
+            ),
           ),
         ),
 
         Positioned(
           bottom: 8,
           left: 8,
-          // right: 0,
-          child: const CountdownAndWidth(),
+
+          child: CountdownAndWidth(
+            remainingTime: remainingTime,
+            remainingTimeText: remainingTimeText,
+            bidAmount: bidAmount,
+          ),
         ),
       ],
     );
@@ -79,28 +138,37 @@ class _Image extends StatelessWidget {
 }
 
 class CountdownAndWidth extends StatelessWidget {
-  const CountdownAndWidth({super.key});
+  const CountdownAndWidth({
+    super.key,
+    required this.remainingTime,
+    required this.remainingTimeText,
+    required this.bidAmount,
+  });
+
+  final int remainingTime;
+  final String remainingTimeText;
+  final String bidAmount;
 
   @override
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(color: CAColors.grey2, borderRadius: BorderRadius.circular(4)),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
+            const Icon(
               Icons.timer_outlined,
               size: 16,
               color: CAColors.grey,
             ),
-            SizedBox(width: 4),
-            Countdown(),
-            SizedBox(width: 8),
-            Icon(Icons.monetization_on_outlined, size: 16, color: CAColors.grey),
-            SizedBox(width: 4),
-            Bid(),
+            const SizedBox(width: 4),
+            _Countdown(remainingTime: remainingTime, remainingTimeText: remainingTimeText),
+            const SizedBox(width: 8),
+            const Icon(Icons.monetization_on_outlined, size: 16, color: CAColors.grey),
+            const SizedBox(width: 4),
+            _Bid(bidAmount: bidAmount),
           ],
         ),
       ),
@@ -108,68 +176,62 @@ class CountdownAndWidth extends StatelessWidget {
   }
 }
 
-class Countdown extends StatelessWidget {
-  const Countdown({super.key});
+class _Countdown extends StatelessWidget {
+  const _Countdown({required this.remainingTime, required this.remainingTimeText});
+
+  final int remainingTime;
+  final String remainingTimeText;
 
   @override
   Widget build(BuildContext context) {
-    return const Text('15:08:15');
+    return Text(remainingTimeText);
   }
 }
 
-class Bid extends StatelessWidget {
-  const Bid({super.key});
+class _Bid extends StatelessWidget {
+  const _Bid({required this.bidAmount});
+
+  final String bidAmount;
 
   @override
   Widget build(BuildContext context) {
-    return Text('\$93,000');
+    return Text('\$$bidAmount');
   }
 }
 
 class _Title extends StatelessWidget {
-  const _Title();
+  const _Title({
+    required this.title,
+    required this.index,
+    required this.favored,
+  });
+
+  final String title;
+  final int index;
+  final bool favored;
 
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Text(
-          '2015 Alfa Romeo 4C',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        Text(
+          title,
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
-        SizedBox(
+        const SizedBox(
           width: 8,
         ),
         InkWell(
-          onTap: () {},
+          onTap: () {
+            context.read<AuctionsPageCubit>().toggleFavorite(index);
+          },
           child: Icon(
-            Icons.star_border_outlined,
-            size: 18,
+            favored ? Icons.star : Icons.star_border_outlined,
+            size: 20,
           ),
         ),
       ],
-    );
-  }
-}
-
-class _Badge extends StatelessWidget {
-  const _Badge({required this.text, required this.color});
-
-  final String text;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(4)),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4),
-        child: Text(
-          text,
-          style: TextStyle(fontSize: 10, color: Colors.white, fontWeight: FontWeight.w600),
-        ),
-      ),
     );
   }
 }

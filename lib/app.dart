@@ -36,7 +36,7 @@ final _router = GoRouter(
             GoRoute(
               path: 'auctions/:id',
 
-              builder: (context, state) => AuctionPage(),
+              builder: (context, state) => const AuctionPage(),
             ),
           ],
         ),
