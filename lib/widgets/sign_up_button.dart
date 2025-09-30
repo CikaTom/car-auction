@@ -1,0 +1,14 @@
+import 'package:car_auction/widgets/button.dart';
+import 'package:flutter/material.dart';
+
+class SignUpButton extends StatelessWidget {
+  const SignUpButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Button(
+      text: 'Sign up',
+      onTap: () {},
+    );
+  }
+}
